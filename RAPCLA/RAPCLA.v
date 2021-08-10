@@ -53,7 +53,7 @@ module RAPCLA_p_v #(parameter SIZE=16, groupsize=8, window=4)(
 
 			for (i=1; i<=SIZE/groupsize; i=i+1)
 				begin:SUBGROUP_END_GG
-					GC #(2) GRAYCELL_LOW_GROUP(gen[i*groupsize-window], {groupgen1[i*2-1], gen[i-1]}, groupprop1[i*2-1]); 
+					GC #(2) GRAYCELL_LOW_GROUP(gen[i*groupsize-window], {groupgen1[i*2-1], gen[(i-1)*groupsize]}, groupprop1[i*2-1]); 
 					GC #(2) GRAYCELL_HIGH_GROUP(genexact[i], {groupgen1[i*2], gen[i*groupsize-window]}, groupprop1[i*2]);
 					mux_2_input RECON(gen[i*groupsize], groupgen1[i*2], genexact[i], ApproxRCON[i]);
 					//GC #(2) GRAYCELL_LOW_GROUP_FIRST_CELL(gen[(i-1)*groupsize+1], {g[(i-1)*groupsize+1], groupcarryout[i-1]}, p[(i-1)*groupsize+1]);
