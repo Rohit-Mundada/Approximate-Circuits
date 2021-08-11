@@ -18,7 +18,7 @@
 // Additional Comments: 
 //
 //////////////////////////////////////////////////////////////////////////////////
-module GC #(parameter valency=4)(output GG, input [valency-1 : 0] g, input [valency-1 : 1] p);
+module GC #(parameter valency=4)(output GG, input [valency-1 : 0] g, input [valency-2 : 0] p);
 
 	wire [valency-1 : 0] wr, gg;
 
@@ -29,7 +29,7 @@ module GC #(parameter valency=4)(output GG, input [valency-1 : 0] g, input [vale
 	generate
 	for(k=0; k<valency-1; k=k+1)
 		begin
-			and (wr[k], p[k+1], gg[k]);
+			and (wr[k], p[k], gg[k]);
 			or (gg[k+1], wr[k], g[k+1]);                        
 		end
 	endgenerate	
