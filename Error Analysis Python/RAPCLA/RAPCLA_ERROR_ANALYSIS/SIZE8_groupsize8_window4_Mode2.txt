@@ -1,0 +1,21 @@
+RAPCLA ERROR ANALYSIS
+
+Parameters :
+	SIZE = 8
+	groupsize = 8
+	Window Size = 4
+
+Number of iterations	: 1000000
+Number of error cases	: 0
+Error Rate = errorcount/no. of iterations
+	=0.00
+Maximum Hamming Distance = 0
+Average Hamming Distance = Total_BIT_Flip_Error / iterations
+	= 0.000 (Over all iterations)
+	Maximum Error = 0 (Absolute value)
+Average error(Error_Distance)(sum of errors/iterations) = 0 
+	Average Maximum Error = 0 
+
+Acceptance Probability Over iterations
+	=100.000 (in %) 
+

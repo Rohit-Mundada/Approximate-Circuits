@@ -1,0 +1,8 @@
+In this paper, "Probabilistic Error Modeling for
+Approximate Adders", they have taken number of sum and prediction bits for each subadder and calculated the internal probabilities for each inclusion exclusion term.
+
+But in your paper, you have a separate carry generator block and sub-adder block. So all of the bits in the sub-adder are taken as the final sum ?
+
+If that is the case then these both configurations are not same.
+
+Or if they are same, then are the prediction bits inside a sub-adder = carry generator block length?
