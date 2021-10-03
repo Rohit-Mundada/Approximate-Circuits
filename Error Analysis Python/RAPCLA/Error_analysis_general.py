@@ -169,12 +169,13 @@ ri = []  # set of all prediction bits
 ru = []  # union of prediction bits
 gi = []  # set of all generation bits
 # gu = []
-gI = [] # intersection of all gi sets
-gD = [] # difference set
+gI = []  # intersection of all gi sets
+gD = []  # difference set
 
 for i in range(len(Sad)):
     # In each iteration, add an empty list to the main list
     ri.append([])
+    gD.append([])
 
 for i in range(len(Sad)):
     # In each iteration, add an empty list to the main list
@@ -189,6 +190,7 @@ def probabilityP(n):
 
 def probabilityG0(n):
     return (2 ** n - 1) / (2 ** (n + 1))
+
 
 # Steps 1, 2, 3, 4 of algorithm 2
 for i in range(0, len(Scg)):
@@ -212,17 +214,36 @@ for i in range(0, len(Scg)):
             # print(ru)
             gi[i].append(j)
 
-            if j not in gI:
-                gI.append(j)
 
-    print(len(gI))
+gI = max((x) for x in gi)
+for x in gi:
+    if x != []:
+        gI = [value for value in gI if value in x]
+
+print(len(gI))
+if(len(gI) != 0):
     Pr_int *= probabilityG0(len(gI))
 
+x = 0
+for i in gi:
+    if i != []:
+        for j in i:
+            if j not in gI:
+                gD[x].append(j)
+    x += 1
 
-        # if j not in gu:
-        #     # gi[i].append(j)
-        #     gi[i].append(j)
-        #     print(i, j)
+gI = max((x) for x in gD)
+for x in gD:
+    if x != []:
+        gI = [value for value in gI if value in x]
+
+if(len(gI) != 0):
+    Pr_int *= (probabilityG0(len(gI)) + probabilityP(len(gI)))
+
+    # if j not in gu:
+    #     # gi[i].append(j)
+    #     gi[i].append(j)
+    #     print(i, j)
 
     # Pr_int = probabilityP(len(ri))
 
@@ -238,6 +259,7 @@ print('ru: ', ru)
 print('gi: ', gi)
 # print('gu: ', gu)
 print('gI: ', gI)
-print(Pr_int)
+print('gD: ', gD)
+print('Pr_int', Pr_int)
 print(Scg)
 print(Sad)
