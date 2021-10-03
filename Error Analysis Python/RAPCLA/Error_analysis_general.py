@@ -7,8 +7,8 @@
 # import array
 # import csv
 # import itertools
-# import math
-# from math import comb
+import math
+from math import comb
 
 
 def get_bin(x, n): return format(x, 'b').zfill(n)
@@ -165,24 +165,6 @@ print(PAR)
 print(ER)
 # print(Perr)
 
-ri = []  # set of all prediction bits
-ru = []  # union of prediction bits
-gi = []  # set of all generation bits
-# gu = []
-gI = []  # intersection of all gi sets
-gD = []  # difference set
-
-for i in range(len(Sad)):
-    # In each iteration, add an empty list to the main list
-    ri.append([])
-    gD.append([])
-
-for i in range(len(Sad)):
-    # In each iteration, add an empty list to the main list
-    gi.append([])
-
-Pr_int = 0
-
 
 def probabilityP(n):
     return 1 / (2 ** n)
@@ -192,74 +174,82 @@ def probabilityG0(n):
     return (2 ** n - 1) / (2 ** (n + 1))
 
 
-# Steps 1, 2, 3, 4 of algorithm 2
-for i in range(0, len(Scg)):
-    for j in range(Scg[i], Sad[i]):
-        if j != 0:
-            ri[i].append(j)
+def jointProbability():
+    ri = []  # set of all prediction bits
+    ru = []  # union of prediction bits
+    gi = []  # set of all generation bits
+    gI = []  # intersection of all gi sets
+    gD = []  # difference set
 
-        if j not in ru and j != 0:
-            ru.append(j)
+    for i in range(len(Sad)):
+        # In each iteration, add an empty list to the main list
+        ri.append([])
+        gD.append([])
+        gi.append([])
 
-    print(len(ru))
-    Pr_int = probabilityP(len(ru))
+    Pr_int = 0  # initializing the probability of intersection of events
 
-# Steps 5, 6, 7, 8, 9 of algorithm 2
-for i in range(0, len(Scg)):
-    for j in range(0, SIZE + 1):
-        # if j not in gu and j not in Sad and j != 0:
-        #     gu.append(j)
+    # Steps 1, 2, 3 and 4 of algorithm 2
+    for i in range(0, len(Scg)):
+        for j in range(Scg[i], Sad[i]):
+            if j != 0:
+                ri[i].append(j)  # appending prediction bits for each sub-adder
 
-        if j != 0 and j < Sad[i] and j not in ru:
-            # print(ru)
-            gi[i].append(j)
+            if j not in ru and j != 0:
+                ru.append(j)  # taking the union of all the elements of ri
+
+        Pr_int = probabilityP(len(ru))
+
+    # Steps 5 and 6 of algorithm 2
+    for i in range(0, len(Scg)):
+        for j in range(0, SIZE + 1):
+            if j != 0 and j < Sad[i] and j not in ru:
+                # appending carry generation bits for each sub-adder which are not included in the union of the prediction bits
+                gi[i].append(j)
+
+    # Steps 7, 8 and 9 of algorithm 2
+    gI = max((x) for x in gi)
+    for x in gi:
+        if x != []:
+            # finding intersection of all the elements of gi
+            gI = [value for value in gI if value in x]
+
+    print(len(gI))
+    if(len(gI) != 0):
+        Pr_int *= probabilityG0(len(gI))
+
+    # Steps 10 to 17 of algorithm 2
+    x = 0
+    for i in gi:
+        if i != []:
+            for j in i:
+                if j not in gI:
+                    gD[x].append(j)
+        x += 1
+
+    gI = max((x) for x in gD)
+    for x in gD:
+        if x != []:
+            gI = [value for value in gI if value in x]
+
+    if(len(gI) != 0):
+        Pr_int *= (probabilityG0(len(gI)) + probabilityP(len(gI)))
+
+    print('ri: ', ri)
+    print('ru: ', ru)
+    print('gi: ', gi)
+    print('gI: ', gI)
+    print('gD: ', gD)
+    print('Pr_int:', Pr_int)
+
+    return Pr_int
 
 
-gI = max((x) for x in gi)
-for x in gi:
-    if x != []:
-        gI = [value for value in gI if value in x]
+Perr = 1
 
-print(len(gI))
-if(len(gI) != 0):
-    Pr_int *= probabilityG0(len(gI))
-
-x = 0
-for i in gi:
-    if i != []:
-        for j in i:
-            if j not in gI:
-                gD[x].append(j)
-    x += 1
-
-gI = max((x) for x in gD)
-for x in gD:
-    if x != []:
-        gI = [value for value in gI if value in x]
-
-if(len(gI) != 0):
-    Pr_int *= (probabilityG0(len(gI)) + probabilityP(len(gI)))
-
-    # if j not in gu:
-    #     # gi[i].append(j)
-    #     gi[i].append(j)
-    #     print(i, j)
-
-    # Pr_int = probabilityP(len(ri))
-
-    # for j in range(Sad[i], SIZE + 1):
-    #     if j not in Sad and j not in ri:
-    #         gi[0].append(j)
-
-    # Pr_int *= probabilityG0(len(gi))
+for i in range(1, len(Sad)):
+    for j in range(1, comb((len(Sad) - 1), i)):
+        Perr = Perr + ((-1)**(i+1))*jointProbability()
 
 
-print('ri: ', ri)
-print('ru: ', ru)
-print('gi: ', gi)
-# print('gu: ', gu)
-print('gI: ', gI)
-print('gD: ', gD)
-print('Pr_int', Pr_int)
-print(Scg)
-print(Sad)
+print('Perr:', Perr)
