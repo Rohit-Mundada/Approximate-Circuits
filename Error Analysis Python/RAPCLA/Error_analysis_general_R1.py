@@ -174,7 +174,7 @@ def probabilityG0(n):
     return (2 ** n - 1) / (2 ** (n + 1))
 
 
-def jointProbability():
+def jointProbability(arr):
     ri = []  # set of all prediction bits
     ru = []  # union of prediction bits
     gi = []  # set of all generation bits
@@ -195,8 +195,9 @@ def jointProbability():
             if j != 0:
                 ri[i].append(j)  # appending prediction bits for each sub-adder
 
-            if j not in ru and j != 0:
-                ru.append(j)  # taking the union of all the elements of ri
+            if j not in ru and j != 0 and j in arr:
+                # taking the union of all the elements of ri which are in P(i)j
+                ru.append(j)
 
         Pr_int = probabilityP(len(ru))
 
@@ -245,11 +246,34 @@ def jointProbability():
     return Pr_int
 
 
-Perr = 1
+# Finding the power set of all the elements in {2, 3, 4, ... L} where L is the number of sub-adders (L = len(Sad))
+ps = []
+Ps = []  # power set
 
+for i in range(0, 2**len(Sad)):
+    ps.append([])
+
+# Code to generate power set
+# taken from https://www.geeksforgeeks.org/power-set/
+for i in range(0, 2**len(Sad)):
+    for j in range(0, len(Sad)):
+        if ((i & (1 << j)) > 0 and (j + 1) != 1):
+            ps[i].append(j + 1)
+
+# ps contains duplicate elements, so removing the duplicate ones and appending to new array
+for i in ps:
+    if i not in Ps:
+        Ps.append(i)
+
+# initializing error probability to 0
+Perr = 0
+
+# giving Ps[i] as input to jointProbability function as in paper it was said to iterate with every P(i)j
 for i in range(1, len(Sad)):
-    for j in range(1, comb((len(Sad) - 1), i)):
-        Perr = Perr + ((-1)**(i+1))*jointProbability()
+    for j in range(1, comb((len(Sad) - 1), i) + 1):
+        Perr = Perr + ((-1)**(i+1))*jointProbability(Ps[i])
 
 
 print('Perr:', Perr)
+print('Error Rate: ', Perr*100)
+print('Pcorrect: ', (1 - Perr)*100)
