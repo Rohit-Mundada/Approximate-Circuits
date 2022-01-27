@@ -1,0 +1,27 @@
+GeAr ERROR ANALYSIS
+
+Parameters :
+	N = 48
+	R = 4
+	P = 4
+	valency = 4
+
+Number of iterations	: 100000
+Number of error cases	: 26472
+Error Rate = errorcount/no. of iterations
+	= 26.472%
+
+Maximum Hamming Distance = 17
+Average Hamming Distance = Total_BIT_Flip_Error / iterations
+	= 0.590 (Over all iterations)
+	= 2.227 (Over erroneous iterations)
+
+Maximum Error = 17661173956608 (Absolute value)
+Average error(sum of errors/iterations) = 246.26662586062793 
+	= 2021639993012.376 (Over erroneous iterations)
+
+Average Maximum Error = 0.981812797470128 
+
+Acceptance Probability Over iterations
+	= 96.932  (in %) 
+
