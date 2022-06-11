@@ -6,7 +6,7 @@
 # import random
 # import array
 # import csv
-# import itertools
+# import itertools Version1
 import math
 from math import comb
 
@@ -174,37 +174,39 @@ def probabilityG0(n):
     return (2 ** n - 1) / (2 ** (n + 1))
 
 
-def jointProbability(arr):
+def jointProbability(p_ij):
     ri = []  # set of all prediction bits
     ru = []  # union of prediction bits
     gi = []  # set of all generation bits
     gI = []  # intersection of all gi sets
     gD = []  # difference set
 
-    for i in range(len(Sad)):
+    for i in range(len(p_ij)):  # cahnges
         # In each iteration, add an empty list to the main list
         ri.append([])
-        gD.append([])
+        #gD.append([])
         gi.append([])
 
     Pr_int = 0  # initializing the probability of intersection of events
 
     # Steps 1, 2, 3 and 4 of algorithm 2
-    for i in range(0, len(Scg)):
-        for j in range(Scg[i], Sad[i]):
+    for i in range(0, len(p_ij)):
+        #for i in p_ij:
+        for j in range(Scg[p_ij[i] - 1], Sad[p_ij[i] - 1]):  # scg[p_ij[i] -1]
             if j != 0:
                 ri[i].append(j)  # appending prediction bits for each sub-adder
 
-            if j not in ru and j != 0 and j in arr:
-                # taking the union of all the elements of ri which are in P(i)j
-                ru.append(j)
+            if j not in ru and j != 0:
+                ru.append(j)  # taking the union of all the elements of ri
 
         Pr_int = probabilityP(len(ru))
+    #print('ri: ', ri)
+    #print('ru: ', ru)
 
     # Steps 5 and 6 of algorithm 2
-    for i in range(0, len(Scg)):
+    for i in range(0, len(p_ij)):
         for j in range(0, SIZE + 1):
-            if j != 0 and j < Sad[i] and j not in ru:
+            if j != 0 and j < (Sad[p_ij[i]-1]) and j not in ru:
                 # appending carry generation bits for each sub-adder which are not included in the union of the prediction bits
                 gi[i].append(j)
 
@@ -220,21 +222,41 @@ def jointProbability(arr):
         Pr_int *= probabilityG0(len(gI))
 
     # Steps 10 to 17 of algorithm 2
-    x = 0
+
+    ls = []
     for i in gi:
         if i != []:
             for j in i:
                 if j not in gI:
-                    gD[x].append(j)
-        x += 1
+                    ls.append(j)
 
-    gI = max((x) for x in gD)
-    for x in gD:
-        if x != []:
-            gI = [value for value in gI if value in x]
+            if(ls != []):
+                gD.append(ls)
+            ls = []
 
-    if(len(gI) != 0):
-        Pr_int *= (probabilityG0(len(gI)) + probabilityP(len(gI)))
+    for i in gD:
+        gI = max((x) for x in gD)
+        for x in gD:
+            if x != []:
+                gI = [value for value in gI if value in x]
+
+        if(len(gI) != 0):
+            Pr_int *= (probabilityG0(len(gI)) + probabilityP(len(gI)))
+
+        ls = []
+        temp_gD = []
+        for j in gD:
+            if j != []:
+                for k in j:
+                    if k not in gI:
+                        ls.append(k)
+
+                if(ls != []):
+                    temp_gD.append(ls)
+                ls = []
+        gD = temp_gD
+        if(gD == []):
+            break
 
     print('ri: ', ri)
     print('ru: ', ru)
@@ -246,34 +268,20 @@ def jointProbability(arr):
     return Pr_int
 
 
-# Finding the power set of all the elements in {2, 3, 4, ... L} where L is the number of sub-adders (L = len(Sad))
-ps = []
-Ps = []  # power set
-
-for i in range(0, 2**len(Sad)):
-    ps.append([])
-
-# Code to generate power set
-# taken from https://www.geeksforgeeks.org/power-set/
-for i in range(0, 2**len(Sad)):
-    for j in range(0, len(Sad)):
-        if ((i & (1 << j)) > 0 and (j + 1) != 1):
-            ps[i].append(j + 1)
-
-# ps contains duplicate elements, so removing the duplicate ones and appending to new array
-for i in ps:
-    if i not in Ps:
-        Ps.append(i)
-
-# initializing error probability to 0
 Perr = 0
+itr = 0
+PS = [[]]
+L = indexmax
+for el in list(range(2, L+1)):
+    for SS in PS:
+        PS = PS + [list(SS)+[el]]
+PS = list(sorted(PS[1:], key=len))
+print("PS", PS)
 
-# giving Ps[i] as input to jointProbability function as in paper it was said to iterate with every P(i)j
 for i in range(1, len(Sad)):
-    for j in range(1, comb((len(Sad) - 1), i) + 1):
-        Perr = Perr + ((-1)**(i+1))*jointProbability(Ps[i])
+    for j in range(1, comb((len(Sad) - 1), i)+1):
 
+        Perr = Perr + ((-1)**(i+1))*jointProbability(PS[itr])
+        itr += 1
 
 print('Perr:', Perr)
-print('Error Rate: ', Perr*100)
-print('Pcorrect: ', (1 - Perr)*100)
